@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "741608533810",
+    "project_id": "onlyfunds---budget-tracker",
+    "storage_bucket": "onlyfunds---budget-tracker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:741608533810:android:0d0bd7846886eb8fd9f12b",
+        "android_client_info": {
+          "package_name": "com.example.onlyfunds_v1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnaxuGoxQPplK-inXBgNAZpCc01M6qUfw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
