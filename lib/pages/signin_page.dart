@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onlyfunds_v1/pages/register_page.dart';
 import 'package:onlyfunds_v1/auth_service.dart';
+import 'package:onlyfunds_v1/pages/onboarding_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -23,9 +24,10 @@ class _SignInPageState extends State<SignInPage> {
         password: passwordController.text.trim(),
       );
       // If successful, user is automatically signed in
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Signed in successfully!")),
-      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const OnboardingPage()),
+        );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.message}")),
