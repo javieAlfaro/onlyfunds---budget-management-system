@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:onlyfunds_v1/widgets/onboarding_card.dart';
+import 'package:onlyfunds_v1/pages/home_page.dart';
+import 'package:onlyfunds_v1/widgets/widgets.dart';
+
+
+
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -34,7 +38,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (_currentPage < _pages.length - 1) {
       _controller.nextPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
     } else {
-      Navigator.pushReplacementNamed(context, "/home");
+      Navigator.pushReplacement(context,
+       MaterialPageRoute(builder: (context) => const HomePage()),
+       );
     }
   }
 
@@ -85,26 +91,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
 
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 60),
-                  child: SizedBox(
-                    width: 250,
-                    height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(25),
-                        ),
-                      ),
-                      onPressed: _nextPage,
-                      child: Text(
-                        _currentPage == _pages.length - 1 ? "Get Started" : "Next",
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ),
-                )
-
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 60),
+                child: Button(
+                  text: _currentPage == _pages.length - 1 ? "Get Started" : "Next",
+                  onPressed: _nextPage,
+                  backgroundColor: _currentPage == _pages.length - 1 
+                      ? Colors.black 
+                      : Colors.white,
+                  textColor: _currentPage == _pages.length - 1 
+                      ? Colors.white 
+                      : Colors.black,
+                  borderColor: _currentPage == _pages.length -1
+                      ? Colors.black
+                      : Colors.white
+                ),
+              ),
           ],
         ),
       ),

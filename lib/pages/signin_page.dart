@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onlyfunds_v1/pages/register_page.dart';
 import 'package:onlyfunds_v1/auth_service.dart';
 import 'package:onlyfunds_v1/pages/onboarding_page.dart';
+import 'package:onlyfunds_v1/widgets/widgets.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -23,7 +24,7 @@ class _SignInPageState extends State<SignInPage> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // If successful, user is automatically signed in
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const OnboardingPage()),
@@ -105,30 +106,17 @@ class _SignInPageState extends State<SignInPage> {
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
+            Button(
+              text: isLoading ? "Signing in..." : "Sign In",
               onPressed: isLoading ? null : _signIn,
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Sign In"),
+              width: 250,
+              backgroundColor: Colors.white,
+              textColor: Colors.black,
+              borderColor: Colors.white,
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
+            Button(
+              text: "Create Account",
               onPressed: () {
                 Navigator.push(
                   context,
@@ -137,7 +125,7 @@ class _SignInPageState extends State<SignInPage> {
                   ),
                 );
               },
-              child: const Text("Create Account"),
+              width: 250,
             ),
           ],
         ),

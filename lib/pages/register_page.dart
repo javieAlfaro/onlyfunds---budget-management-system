@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onlyfunds_v1/auth_service.dart';
+import 'package:onlyfunds_v1/widgets/widgets.dart';
+import 'package:onlyfunds_v1/user_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,6 +12,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  TextEditingController userNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
@@ -33,14 +36,21 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => isLoading = true);
     try {
-      await authService.value.createAccount(
+      UserCredential userCred = await authService.value.createAccount(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      
+      await UserService().createUserRecord(
+        uid: userCred.user!.uid,
+        username: userNameController.text.trim(),
+        email: emailController.text.trim(),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully!")),
       );
-      Navigator.pop(context); // return to Sign In Page
+      Navigator.pop(context); 
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: ${e.message}")),
@@ -76,6 +86,19 @@ class _RegisterPageState extends State<RegisterPage> {
             const Text("Create Account",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 32),
+            TextField(
+              controller: userNameController,
+              decoration: InputDecoration(
+                hintText: "Username",
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
@@ -121,20 +144,20 @@ class _RegisterPageState extends State<RegisterPage> {
               errorMessage, style: TextStyle(color: Colors.redAccent),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
+            Button(
+              text: isLoading ? "Loading..." : "Sign Up",
               onPressed: isLoading ? null : _signUp,
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text("Sign Up"),
+              width: 250,
             ),
+            TextButton(
+            onPressed: () {
+              Navigator.pop(context); 
+            },
+            child: const Text(
+              "Already have an account? Sign In",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
           ],
         ),
       ),
