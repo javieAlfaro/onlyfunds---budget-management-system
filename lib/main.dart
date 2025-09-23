@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
-import 'pages/signin_page.dart'; 
-// import 'pages/register_page.dart'; // only needed when navigating
+import 'pages/signin_page.dart';
+import 'pages/home_page.dart'; // 👈 your bottom nav container
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,10 +21,25 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'OnlyFunds',
       debugShowCheckedModeBanner: false,
+      // initialRoute: '/signin',
+      routes: {
+        '/signin': (context) => const SignInPage(),
+        '/home': (context) => const HomePage(),
+        // add others here...
+      },
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const SignInPage(), 
+      home: _buildHome(),
     );
+  }
+
+  Widget _buildHome() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      return const HomePage(); // already signed in
+    } else {
+      return const SignInPage(); // not signed in
+    }
   }
 }

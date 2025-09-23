@@ -1,8 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:onlyfunds_v1/transaction_service.dart';
+import 'package:onlyfunds_v1/pages/settings_page.dart';
+import 'package:onlyfunds_v1/pages/history_page.dart';
+import 'package:onlyfunds_v1/pages/reports_page.dart';
+import 'package:onlyfunds_v1/pages/savings_page.dart';
 import 'package:onlyfunds_v1/widgets/widgets.dart';
+import 'package:onlyfunds_v1/transaction_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Home Page for appbar and bottom nav
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -11,21 +16,109 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final TextEditingController _labelController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
+  int _selectedIndex = 2; // Home is center
 
-  final TransactionService _transactionService = TransactionService();
+  late final List<Widget> _pages;
 
-  int _selectedIndex = 2; // Home is in the center
-  String? _selectedCategory;
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      // Savings
+      Scaffold(
+        backgroundColor: Colors.grey[100],
+        appBar: CustomAppBar(
+          title: "Savings",
+          showBack: true,
+          onBack: () => setState(() => _selectedIndex = 2),
+        ),
+        body: const SavingsPage(),
+      ),
+
+      // Reports
+      Scaffold(
+        appBar: CustomAppBar(
+          title: "Reports",
+          showBack: true,
+          onBack: () => setState(() => _selectedIndex = 2),
+        ),
+        body: const ReportsPage(),
+      ),
+
+      // Home (black app bar, no back button)
+      const HomePageContent(),
+
+      // History
+      Scaffold(
+        appBar: CustomAppBar(
+          title: "Transaction History",
+          showBack: true,
+          onBack: () => setState(() => _selectedIndex = 2),
+        ),
+        body: const HistoryPage(),
+      ),
+
+      // Settings
+      Scaffold(
+        appBar: CustomAppBar(
+          title: "Settings",
+          showBack: true,
+          onBack: () => setState(() => _selectedIndex = 2),
+        ),
+        body: const SettingsPage(),
+      ),
+    ];
+  }
 
   void _onItemTapped(int index) {
+    if (index == _selectedIndex) return;
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "Savings"),
+          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: "Reports"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+        ],
+      ),
+    );
+  }
+}
+
+/// Home Page Content (Original na ginawa mo)
+class HomePageContent extends StatefulWidget {
+  const HomePageContent({Key? key}) : super(key: key);
+
+  @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  final TextEditingController _labelController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+
+  final TransactionService _transactionService = TransactionService();
+  String? _selectedCategory;
+
+  @override
   void dispose() {
     _labelController.dispose();
     _descriptionController.dispose();
@@ -41,7 +134,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.black,
         title: const Text(
           "Budget Tracker",
-          style: TextStyle(color: Colors.white), // ✅ White title text
+          style: TextStyle(color: Colors.white),
         ),
         actions: [
           Padding(
@@ -58,13 +151,11 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Full-width Balance Section
+            // Balance section
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.black,
-              ),
+              decoration: const BoxDecoration(color: Colors.black),
               child: Column(
                 children: const [
                   Text("Remaining Balance",
@@ -78,7 +169,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
+            
             const SizedBox(height: 16),
 
             // Income and Expenses
@@ -92,10 +183,7 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             const SizedBox(height: 8),
-            Divider(
-                  color: Colors.grey,
-                  thickness: 1,
-                ),
+            const Divider(color: Colors.grey, thickness: 1),
             const SizedBox(height: 16),
 
             // Add Transaction Section
@@ -106,7 +194,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 8),
 
-            // Label + Dropdown Row
+            // Label + Category Row
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -114,17 +202,17 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: TextField(
                       controller: _labelController,
-                      decoration: InputDecoration(labelText: "Label"),
+                      decoration: const InputDecoration(labelText: "Label"),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: _selectedCategory,
-                      isExpanded: true, 
+                      isExpanded: true,
                       decoration: const InputDecoration(
                         labelText: "Category",
-                        border: OutlineInputBorder(), 
+                        border: OutlineInputBorder(),
                       ),
                       items: const [
                         DropdownMenuItem(value: "Income/Allowance", child: Text("Income/Allowance")),
@@ -147,28 +235,28 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
 
-      
+            // Description
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: "Description"),
+                decoration: const InputDecoration(labelText: "Description"),
               ),
             ),
             const SizedBox(height: 10),
 
-    
+            // Amount
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: TextField(
                 controller: _amountController,
-                decoration: InputDecoration(labelText: "Amount"),
+                decoration: const InputDecoration(labelText: "Amount"),
                 keyboardType: TextInputType.number,
               ),
             ),
             const SizedBox(height: 16),
 
-
+            // Buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -176,27 +264,27 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: Button(
                       text: "+ Income",
-                      onPressed: () async{
-                        await TransactionService().addTransaction(
+                      onPressed: () async {
+                        await _transactionService.addTransaction(
                           label: _labelController.text.trim(),
                           category: _selectedCategory ?? "Uncategorized",
                           description: _descriptionController.text.trim().isEmpty
-                            ? null
-                            :_descriptionController.text.trim(),
+                              ? null
+                              : _descriptionController.text.trim(),
                           amount: double.tryParse(_amountController.text.trim()) ?? 0,
                           type: "income",
-                          );
+                        );
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Income Added!")),
-                          );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Income Added!")),
+                        );
 
-                          _labelController.clear();
-                          _descriptionController.clear();
-                          _amountController.clear();
-                          setState(() {
-                            _selectedCategory = null;
-                          });
+                        _labelController.clear();
+                        _descriptionController.clear();
+                        _amountController.clear();
+                        setState(() {
+                          _selectedCategory = null;
+                        });
                       },
                     ),
                   ),
@@ -207,26 +295,26 @@ class _HomePageState extends State<HomePage> {
                       textColor: Colors.black,
                       backgroundColor: Colors.white,
                       onPressed: () async {
-                        await TransactionService().addTransaction(
+                        await _transactionService.addTransaction(
                           label: _labelController.text.trim(),
                           category: _selectedCategory ?? "Uncategorized",
                           description: _descriptionController.text.trim().isEmpty
-                            ? null
-                            : _descriptionController.text.trim(), 
-                          amount: double.tryParse(_amountController.text.trim()) ?? 0, 
-                          type: "expense"
-                          );
+                              ? null
+                              : _descriptionController.text.trim(),
+                          amount: double.tryParse(_amountController.text.trim()) ?? 0,
+                          type: "expense",
+                        );
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Expense Added!"))
-                          );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Expense Added!")),
+                        );
 
-                          _labelController.clear();
-                          _descriptionController.clear();
-                          _amountController.clear();
-                          setState(() {
-                            _selectedCategory = null;
-                          });
+                        _labelController.clear();
+                        _descriptionController.clear();
+                        _amountController.clear();
+                        setState(() {
+                          _selectedCategory = null;
+                        });
                       },
                     ),
                   ),
@@ -235,79 +323,49 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 16),
 
-
+            // Recent Transactions
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text("Recent Transactions",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 8),
-            
+
             StreamBuilder(
               stream: _transactionService.getUserTransactions(),
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(),);
+                  return const Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data.docs.isEmpty) {
-                  return const Center(child: Text("No transactions yet"),);
+                  return const Center(child: Text("No transactions yet"));
                 }
 
                 final transactions = snapshot.data.docs.take(5).toList();
 
                 return ListView.builder(
                   shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: transactions.length,
                   itemBuilder: (context, index) {
                     final doc = transactions[index];
                     final data = doc.data() as Map<String, dynamic>;
 
                     return TransactionCard(
-                      label: data["label"] ?? "", 
-                      date: (data["date_added"] as Timestamp?)?.toDate(), 
-                      amount: (data["amount"] ?? 0).toDouble(), 
+                      label: data["label"] ?? "",
+                      date: (data["date_added"] as Timestamp?)?.toDate(),
+                      amount: (data["amount"] ?? 0).toDouble(),
                       type: data["type"] ?? "expense",
                       category: data["category"] ?? "Uncategorized",
-                      );
-                  });
-              })
+                    );
+                  },
+                );
+              },
+            ),
           ],
         ),
       ),
-
-    
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "Savings"),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: "Reports"),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransaction(String title, String subtitle, String amount, Color color) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: Colors.grey[200],
-          child: const Icon(Icons.category, color: Colors.black),
-        ),
-        title: Text(title),
-        subtitle: Text(subtitle),
-        trailing: Text(amount,
-            style: TextStyle(
-                color: color, fontWeight: FontWeight.bold, fontSize: 16)),
-      ),
+  
     );
   }
 }
