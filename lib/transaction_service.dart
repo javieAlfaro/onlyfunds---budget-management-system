@@ -10,7 +10,7 @@ class TransactionService {
     required String category,
     String? description,
     required double amount,
-    required String type, // "income" or "expense"
+    required String type, 
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception("No user logged in");
