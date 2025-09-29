@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:onlyfunds_v1/pages/settings_page.dart';
 import 'package:onlyfunds_v1/pages/history_page.dart';
 import 'package:onlyfunds_v1/pages/reports_page.dart';
@@ -7,7 +8,8 @@ import 'package:onlyfunds_v1/widgets/widgets.dart';
 import 'package:onlyfunds_v1/transaction_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Home Page for appbar and bottom nav
+
+// Home Page with Bottom Nav
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -16,6 +18,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final NumberFormat currencyFormatter = NumberFormat.currency(
+    locale: 'en_PH', 
+    symbol: "₱",
+  );
+
+  
   int _selectedIndex = 2; // Home is center
 
   late final List<Widget> _pages;
@@ -91,7 +99,8 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: "Savings"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_balance_wallet), label: "Savings"),
           BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: "Reports"),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
@@ -102,7 +111,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-/// Home Page Content (Original na ginawa mo)
+/// Home Page Content
 class HomePageContent extends StatefulWidget {
   const HomePageContent({Key? key}) : super(key: key);
 
@@ -111,6 +120,7 @@ class HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<HomePageContent> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _labelController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
@@ -157,165 +167,252 @@ class _HomePageContentState extends State<HomePageContent> {
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(color: Colors.black),
               child: Column(
-                children: const [
-                  Text("Remaining Balance",
+                children: [
+                  Text("Current Balance",
                       style: TextStyle(color: Colors.white70, fontSize: 16)),
                   SizedBox(height: 8),
-                  Text("₱2,450.00",
-                      style: TextStyle(
+                  StreamBuilder<double>(
+                    stream: TransactionService().currentMonthBalance(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Text(
+                          "₱0.00",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      }
+                      double balance = snapshot.data!;
+                      return Text(
+                        NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(balance),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 32,
-                          fontWeight: FontWeight.bold)),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
 
             // Income and Expenses
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                Text("+₱2,450.00 Income",
-                    style: TextStyle(color: Colors.green, fontSize: 16)),
-                Text("-₱450.00 Expenses",
-                    style: TextStyle(color: Colors.red, fontSize: 16)),
+              children: [
+                StreamBuilder(
+                  stream: _transactionService.currentMonthIncome(),
+                  builder: (context, snapshot) {
+                    final income = snapshot.data ?? 0.0;
+                    return Text(("+") +
+                      NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(income),
+                      style: const TextStyle(color: Colors.green, fontSize: 18),
+                    );
+                  },
+                ),
+                StreamBuilder(
+                    stream: _transactionService.currentMonthExpense(),
+                    builder: (context, snapshot) {
+                      final expense = snapshot.data ?? 0.0;
+                      return Text(("-") +
+                        NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(expense),
+                        style: const TextStyle(color: Colors.red, fontSize: 18),
+                      );
+                    })
               ],
             ),
             const SizedBox(height: 8),
             const Divider(color: Colors.grey, thickness: 1),
             const SizedBox(height: 16),
 
-            // Add Transaction Section
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text("Add Transaction",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(height: 8),
-
-            // Label + Category Row
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
+            // Add Transaction Section with validation
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _labelController,
-                      decoration: const InputDecoration(labelText: "Label"),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text("Add Transaction",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      isExpanded: true,
-                      decoration: const InputDecoration(
-                        labelText: "Category",
-                        border: OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: "Income/Allowance", child: Text("Income/Allowance")),
-                        DropdownMenuItem(value: "Utility Bills", child: Text("Utility Bills")),
-                        DropdownMenuItem(value: "Transportation", child: Text("Transportation")),
-                        DropdownMenuItem(value: "Food/Grocery", child: Text("Food/Grocery")),
-                        DropdownMenuItem(value: "Subscriptions", child: Text("Subscriptions")),
-                        DropdownMenuItem(value: "Savings", child: Text("Savings")),
-                        DropdownMenuItem(value: "Shopping/Other", child: Text("Shopping/Other")),
+                  const SizedBox(height: 8),
+
+                  // Label + Category Row
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _labelController,
+                            decoration:
+                                const InputDecoration(labelText: "Label"),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "Label is required";
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedCategory,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              labelText: "Category",
+                              border: OutlineInputBorder(),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                  value: "Income/Allowance",
+                                  child: Text("Income/Allowance")),
+                              DropdownMenuItem(
+                                  value: "Utility Bills",
+                                  child: Text("Utility Bills")),
+                              DropdownMenuItem(
+                                  value: "Transportation",
+                                  child: Text("Transportation")),
+                              DropdownMenuItem(
+                                  value: "Food/Grocery",
+                                  child: Text("Food/Grocery")),
+                              DropdownMenuItem(
+                                  value: "Subscriptions",
+                                  child: Text("Subscriptions")),
+                              DropdownMenuItem(
+                                  value: "Savings", child: Text("Savings")),
+                              DropdownMenuItem(
+                                  value: "Shopping/Other",
+                                  child: Text("Shopping/Other")),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCategory = value;
+                              });
+                            },
+                          ),
+                        ),
                       ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value;
-                        });
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Description
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextFormField(
+                      controller: _descriptionController,
+                      decoration:
+                          const InputDecoration(labelText: "Description"),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Amount
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextFormField(
+                      controller: _amountController,
+                      decoration: const InputDecoration(labelText: "Amount"),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Amount is required";
+                        }
+                        if (double.tryParse(value) == null) {
+                          return "Enter a valid number";
+                        }
+                        return null;
                       },
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
-            // Description
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: "Description"),
-              ),
-            ),
-            const SizedBox(height: 10),
+                  // Buttons
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Button(
+                            text: "+ Income",
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
 
-            // Amount
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                controller: _amountController,
-                decoration: const InputDecoration(labelText: "Amount"),
-                keyboardType: TextInputType.number,
-              ),
-            ),
-            const SizedBox(height: 16),
+                              await _transactionService.addTransaction(
+                                label: _labelController.text.trim(),
+                                category:
+                                    _selectedCategory ?? "Uncategorized",
+                                description: _descriptionController.text
+                                        .trim()
+                                        .isEmpty
+                                    ? null
+                                    : _descriptionController.text.trim(),
+                                amount: double.parse(
+                                    _amountController.text.trim()),
+                                type: "income",
+                              );
 
-            // Buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Button(
-                      text: "+ Income",
-                      onPressed: () async {
-                        await _transactionService.addTransaction(
-                          label: _labelController.text.trim(),
-                          category: _selectedCategory ?? "Uncategorized",
-                          description: _descriptionController.text.trim().isEmpty
-                              ? null
-                              : _descriptionController.text.trim(),
-                          amount: double.tryParse(_amountController.text.trim()) ?? 0,
-                          type: "income",
-                        );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Income Added!")),
+                              );
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Income Added!")),
-                        );
+                              _labelController.clear();
+                              _descriptionController.clear();
+                              _amountController.clear();
+                              setState(() {
+                                _selectedCategory = null;
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Button(
+                            text: "- Expense",
+                            textColor: Colors.black,
+                            backgroundColor: Colors.white,
+                            onPressed: () async {
+                              if (!_formKey.currentState!.validate()) return;
 
-                        _labelController.clear();
-                        _descriptionController.clear();
-                        _amountController.clear();
-                        setState(() {
-                          _selectedCategory = null;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Button(
-                      text: "- Expense",
-                      textColor: Colors.black,
-                      backgroundColor: Colors.white,
-                      onPressed: () async {
-                        await _transactionService.addTransaction(
-                          label: _labelController.text.trim(),
-                          category: _selectedCategory ?? "Uncategorized",
-                          description: _descriptionController.text.trim().isEmpty
-                              ? null
-                              : _descriptionController.text.trim(),
-                          amount: double.tryParse(_amountController.text.trim()) ?? 0,
-                          type: "expense",
-                        );
+                              await _transactionService.addTransaction(
+                                label: _labelController.text.trim(),
+                                category:
+                                    _selectedCategory ?? "Uncategorized",
+                                description: _descriptionController.text
+                                        .trim()
+                                        .isEmpty
+                                    ? null
+                                    : _descriptionController.text.trim(),
+                                amount: double.parse(
+                                    _amountController.text.trim()),
+                                type: "expense",
+                              );
 
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Expense Added!")),
-                        );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text("Expense Added!")),
+                              );
 
-                        _labelController.clear();
-                        _descriptionController.clear();
-                        _amountController.clear();
-                        setState(() {
-                          _selectedCategory = null;
-                        });
-                      },
+                              _labelController.clear();
+                              _descriptionController.clear();
+                              _amountController.clear();
+                              setState(() {
+                                _selectedCategory = null;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -365,7 +462,6 @@ class _HomePageContentState extends State<HomePageContent> {
           ],
         ),
       ),
-  
     );
   }
 }

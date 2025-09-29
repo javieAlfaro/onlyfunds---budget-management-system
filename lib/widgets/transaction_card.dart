@@ -66,7 +66,7 @@ class TransactionCard extends StatelessWidget {
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(formattedDate),
         trailing: Text(
-          (type == "income" ? "+₱" : "-₱") + amount.toStringAsFixed(2),
+          (type == "income" ? "+" : "-") + NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(amount),
           style: TextStyle(
             color: type == "income" ? Colors.green : Colors.red,
             fontWeight: FontWeight.bold,
