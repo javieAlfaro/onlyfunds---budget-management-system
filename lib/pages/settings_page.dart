@@ -121,11 +121,11 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _settingsItem(Icons.account_circle, "Account Information"),
+            _settingsItem(Icons.account_circle_rounded, "Account Information"),
             const SizedBox(height: 12),
-            _settingsItem(Icons.notifications_none, "Notifications"),
+            _settingsItem(Icons.notifications_rounded, "Notifications"),
             const SizedBox(height: 12),
-            _settingsItem(Icons.access_time, "Budget Period"),
+            _settingsItem(Icons.access_time_filled_rounded, "Budget Period"),
             const Spacer(),
 
             // Delete Account button
@@ -133,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[800],
+                  backgroundColor: const Color.fromARGB(255, 0, 0, 0),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -153,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: Colors.red,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),

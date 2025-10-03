@@ -16,6 +16,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.grey[100],
+      scrolledUnderElevation: 0,
       elevation: 0,
       centerTitle: true,
       title: Text(
@@ -27,7 +28,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       leading: showBack
           ? IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
               onPressed: onBack ?? () {
                 // instead of popping, go back to previous tab if using bottom nav
                 Navigator.of(context).maybePop();
@@ -36,7 +37,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           : null,
       actions: [
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.black),
+          icon: const Icon(Icons.search_rounded, color: Colors.black),
           onPressed: () {
             // TODO: Add search logic
           },

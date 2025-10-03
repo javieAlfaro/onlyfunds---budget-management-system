@@ -38,9 +38,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     if (_currentPage < _pages.length - 1) {
       _controller.nextPage(duration: const Duration(milliseconds: 350), curve: Curves.easeInOut);
     } else {
-      Navigator.pushReplacement(context,
-       MaterialPageRoute(builder: (context) => const HomePage()),
-       );
+      Navigator.pushReplacementNamed(context, '/home');
     }
   }
 

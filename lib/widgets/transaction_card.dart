@@ -21,21 +21,21 @@ class TransactionCard extends StatelessWidget {
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case "income/allowance":
-        return Icons.attach_money; 
+        return Icons.attach_money_rounded; 
       case "utility bills":
-        return Icons.lightbulb_outline; 
+        return Icons.lightbulb_outline_rounded; 
       case "transportation":
-        return Icons.directions_bus;
+        return Icons.directions_bus_rounded;
       case "food/grocery":
-        return Icons.restaurant;
+        return Icons.restaurant_rounded;
       case "subscriptions":
-        return Icons.subscriptions; 
+        return Icons.subscriptions_rounded; 
       case "savings":
-        return Icons.savings; 
+        return Icons.savings_rounded; 
       case "shopping/other":
-        return Icons.shopping_bag; 
+        return Icons.shopping_bag_rounded; 
       default:
-        return Icons.account_balance_wallet;
+        return Icons.account_balance_wallet_rounded;
     }
   }
 

@@ -100,11 +100,11 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet), label: "Savings"),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: "Reports"),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+              icon: Icon(Icons.account_balance_wallet_rounded), label: "Savings"),
+          BottomNavigationBarItem(icon: Icon(Icons.show_chart_rounded), label: "Reports"),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: "History"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: "Settings"),
         ],
       ),
     );
