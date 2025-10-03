@@ -22,7 +22,6 @@ class _HomePageState extends State<HomePage> {
     locale: 'en_PH', 
     symbol: "₱",
   );
-
   
   int _selectedIndex = 2; // Home is center
 
@@ -127,6 +126,14 @@ class _HomePageContentState extends State<HomePageContent> {
 
   final TransactionService _transactionService = TransactionService();
   String? _selectedCategory;
+
+  bool get _isExpenseDisabled {
+    return _selectedCategory == "Income/Allowance";
+  }
+
+  bool get _isIncomeDisabled {
+    return _selectedCategory != null && _selectedCategory != "Income/Allowance";
+  }
 
   @override
   void dispose() {
@@ -344,7 +351,7 @@ class _HomePageContentState extends State<HomePageContent> {
                         Expanded(
                           child: Button(
                             text: "+ Income",
-                            onPressed: () async {
+                            onPressed: _isIncomeDisabled ? null : () async {
                               if (!_formKey.currentState!.validate()) return;
 
                               await _transactionService.addTransaction(
@@ -373,43 +380,48 @@ class _HomePageContentState extends State<HomePageContent> {
                                 _selectedCategory = null;
                               });
                             },
+                            backgroundColor: _isIncomeDisabled ? Colors.grey : Colors.lightGreen,
+                            borderColor: _isIncomeDisabled ? Colors.grey : Colors.green,
+                            textColor: _isIncomeDisabled ? const Color.fromARGB(255, 71, 71, 71) : Colors.white,
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Button(
                             text: "- Expense",
-                            textColor: Colors.black,
-                            backgroundColor: Colors.white,
-                            onPressed: () async {
+                            onPressed: _isExpenseDisabled ? null : () async {
                               if (!_formKey.currentState!.validate()) return;
 
-                              await _transactionService.addTransaction(
-                                label: _labelController.text.trim(),
-                                category:
-                                    _selectedCategory ?? "Uncategorized",
-                                description: _descriptionController.text
-                                        .trim()
-                                        .isEmpty
-                                    ? null
-                                    : _descriptionController.text.trim(),
-                                amount: double.parse(
-                                    _amountController.text.trim()),
-                                type: "expense",
-                              );
+                              try {
+                                await _transactionService.addTransaction(
+                                  label: _labelController.text.trim(),
+                                  category: _selectedCategory ?? "Uncategorized",
+                                  description: _descriptionController.text.trim().isEmpty
+                                      ? null
+                                      : _descriptionController.text.trim(),
+                                  amount: double.parse(_amountController.text.trim()),
+                                  type: "expense",
+                                );
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Expense Added!")),
-                              );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Expense Added!")),
+                                );
 
-                              _labelController.clear();
-                              _descriptionController.clear();
-                              _amountController.clear();
-                              setState(() {
-                                _selectedCategory = null;
-                              });
+                                _labelController.clear();
+                                _descriptionController.clear();
+                                _amountController.clear();
+                                setState(() {
+                                  _selectedCategory = null;
+                                });
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())),
+                                );
+                              }
                             },
+                            backgroundColor: _isExpenseDisabled ? Colors.grey : Colors.red,
+                            borderColor: _isExpenseDisabled ? Colors.grey : const Color.fromARGB(255, 218, 53, 41),
+                            textColor: _isExpenseDisabled ? const Color.fromARGB(255, 71, 71, 71) : Colors.white,
                           ),
                         ),
                       ],

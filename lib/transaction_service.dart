@@ -19,6 +19,25 @@ class TransactionService {
     DateTime now = DateTime.now();
     String monthId = "${now.year}-${now.month.toString().padLeft(2, '0')}";
 
+    final monthlyDocRef = _firestore
+        .collection("users")
+        .doc(user.uid)
+        .collection("monthly_balances")
+        .doc(monthId);
+
+    // Check balance before expense
+    final monthlySnapshot = await monthlyDocRef.get();
+    double currentBalance = 0.0;
+    if (monthlySnapshot.exists) {
+      final data = monthlySnapshot.data() as Map<String, dynamic>;
+      currentBalance = (data["balance"] ?? 0).toDouble();
+    }
+
+    if (type == "expense" && amount > currentBalance) {
+      throw Exception(
+          "Insufficient balance. Cannot record expense greater than current balance.");
+    }
+
     // 1. Add transaction
     await _firestore
         .collection("users")
@@ -34,12 +53,6 @@ class TransactionService {
     });
 
     // 2. Update monthly balance
-    final monthlyDocRef = _firestore
-        .collection("users")
-        .doc(user.uid)
-        .collection("monthly_balances")
-        .doc(monthId);
-
     await _firestore.runTransaction((transaction) async {
       final snapshot = await transaction.get(monthlyDocRef);
 
@@ -48,7 +61,7 @@ class TransactionService {
         transaction.set(monthlyDocRef, {
           "totalIncome": type == "income" ? amount : 0,
           "totalExpense": type == "expense" ? amount : 0,
-          "balance": type == "income" ? amount : -amount,
+          "balance": type == "income" ? amount : 0, 
         });
       } else {
         final data = snapshot.data() as Map<String, dynamic>;
@@ -61,10 +74,13 @@ class TransactionService {
           totalExpense += amount;
         }
 
+        final newBalance =
+            (totalIncome - totalExpense).clamp(0, double.infinity);
+
         transaction.update(monthlyDocRef, {
           "totalIncome": totalIncome,
           "totalExpense": totalExpense,
-          "balance": totalIncome - totalExpense,
+          "balance": newBalance,
         });
       }
     });
@@ -102,54 +118,51 @@ class TransactionService {
         .doc(monthId)
         .snapshots()
         .map((doc) {
-          if (!doc.exists) return 0.0;
-          final data = doc.data() as Map<String, dynamic>;
-          return (data["balance"] ?? 0).toDouble();
-        });
+      if (!doc.exists) return 0.0;
+      final data = doc.data() as Map<String, dynamic>;
+      return (data["balance"] ?? 0).toDouble();
+    });
   }
 
   /// Stream for current month's total income
-Stream<double> currentMonthIncome() {
-  final user = _auth.currentUser;
-  if (user == null) throw Exception("No user logged in");
+  Stream<double> currentMonthIncome() {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("No user logged in");
 
-  DateTime now = DateTime.now();
-  String monthId = "${now.year}-${now.month.toString().padLeft(2, '0')}";
+    DateTime now = DateTime.now();
+    String monthId = "${now.year}-${now.month.toString().padLeft(2, '0')}";
 
-  return _firestore
-      .collection("users")
-      .doc(user.uid)
-      .collection("monthly_balances")
-      .doc(monthId)
-      .snapshots()
-      .map((doc) {
-        if (!doc.exists) return 0.0;
-        final data = doc.data() as Map<String, dynamic>;
-        return (data["totalIncome"] ?? 0).toDouble();
-      });
+    return _firestore
+        .collection("users")
+        .doc(user.uid)
+        .collection("monthly_balances")
+        .doc(monthId)
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists) return 0.0;
+      final data = doc.data() as Map<String, dynamic>;
+      return (data["totalIncome"] ?? 0).toDouble();
+    });
+  }
+
+  /// Stream for current month's total expense
+  Stream<double> currentMonthExpense() {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception("No user logged in");
+
+    DateTime now = DateTime.now();
+    String monthId = "${now.year}-${now.month.toString().padLeft(2, '0')}";
+
+    return _firestore
+        .collection("users")
+        .doc(user.uid)
+        .collection("monthly_balances")
+        .doc(monthId)
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists) return 0.0;
+      final data = doc.data() as Map<String, dynamic>;
+      return (data["totalExpense"] ?? 0).toDouble();
+    });
+  }
 }
-
-/// Stream for current month's total expense
-Stream<double> currentMonthExpense() {
-  final user = _auth.currentUser;
-  if (user == null) throw Exception("No user logged in");
-
-  DateTime now = DateTime.now();
-  String monthId = "${now.year}-${now.month.toString().padLeft(2, '0')}";
-
-  return _firestore
-      .collection("users")
-      .doc(user.uid)
-      .collection("monthly_balances")
-      .doc(monthId)
-      .snapshots()
-      .map((doc) {
-        if (!doc.exists) return 0.0;
-        final data = doc.data() as Map<String, dynamic>;
-        return (data["totalExpense"] ?? 0).toDouble();
-      });
-}
-
-}
-
-
