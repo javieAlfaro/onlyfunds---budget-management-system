@@ -42,7 +42,7 @@ class _SavingsPageState extends State<SavingsPage> {
                   children: [
                     StreamBuilder<double>(
                       stream: SavingsService().currentAmountSaved(), 
-                      builder: (context, snapshot) { // ✅ parentheses fixed
+                      builder: (context, snapshot) { 
                         if (!snapshot.hasData) {
                           return const Text(
                             "₱0.00",
@@ -53,7 +53,7 @@ class _SavingsPageState extends State<SavingsPage> {
                           );
                         }
 
-                        double amountSaved = snapshot.data!; // ✅ fixed variable name
+                        double amountSaved = snapshot.data!; 
                         return Text(
                           NumberFormat.currency(locale: 'en_PH', symbol: "₱")
                               .format(amountSaved), // use amountSaved, not balance
@@ -67,7 +67,7 @@ class _SavingsPageState extends State<SavingsPage> {
                     SizedBox(height: 4),
                     StreamBuilder<double>(
                       stream: SavingsService().currentTargetSavings(), 
-                      builder: (context, snapshot) { // ✅ parentheses fixed
+                      builder: (context, snapshot) { 
                         if (!snapshot.hasData) {
                           return const Text(
                             "This month's Goal: ₱0.00",
@@ -79,7 +79,7 @@ class _SavingsPageState extends State<SavingsPage> {
                           );
                         }
 
-                        double targetSavings = snapshot.data!; // ✅ fixed variable name
+                        double targetSavings = snapshot.data!; 
                         return Text(
                           "This month's goal: ${NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(targetSavings)}",
                           style: const TextStyle(
@@ -126,7 +126,7 @@ class _SavingsPageState extends State<SavingsPage> {
                     return Stack(
                       alignment: Alignment.centerLeft, // centers the text inside the bar
                       children: [
-                        // 🟩 Background progress bar
+                        
                         ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: LinearProgressIndicator(
