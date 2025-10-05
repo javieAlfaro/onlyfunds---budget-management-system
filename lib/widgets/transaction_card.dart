@@ -33,9 +33,11 @@ class TransactionCard extends StatelessWidget {
       case "savings":
         return Icons.savings_rounded; 
       case "shopping/other":
-        return Icons.shopping_bag_rounded; 
+        return Icons.shopping_bag_rounded;
+      case "funds":
+        return Icons.account_balance_wallet_rounded;  
       default:
-        return Icons.account_balance_wallet_rounded;
+        return Icons.circle_outlined;
     }
   }
 
@@ -47,7 +49,8 @@ class TransactionCard extends StatelessWidget {
       final difference = now.difference(date!).inDays;
 
       if (difference == 0) {
-        formattedDate = "Today";
+        final timeFormat = DateFormat.jm(); // e.g., 3:45 PM
+        formattedDate = timeFormat.format(date!);
       } else if (difference == 1) {
         formattedDate = "Yesterday";
       } else {

@@ -18,11 +18,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final NumberFormat currencyFormatter = NumberFormat.currency(
-    locale: 'en_PH', 
-    symbol: "₱",
-  );
-  
   int _selectedIndex = 2; // Home is center
 
   late final List<Widget> _pages;
@@ -272,11 +267,10 @@ class _HomePageContentState extends State<HomePageContent> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            value: _selectedCategory,
+                            initialValue: _selectedCategory,
                             isExpanded: true,
                             decoration: const InputDecoration(
                               labelText: "Category",
-                              border: OutlineInputBorder(),
                             ),
                             items: const [
                               DropdownMenuItem(
@@ -304,6 +298,12 @@ class _HomePageContentState extends State<HomePageContent> {
                               setState(() {
                                 _selectedCategory = value;
                               });
+                            },
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "Category is required";
+                              }
+                              return null;
                             },
                           ),
                         ),
