@@ -148,6 +148,8 @@ class _RegisterPageState extends State<RegisterPage> {
               text: isLoading ? "Loading..." : "Sign Up",
               onPressed: isLoading ? null : _signUp,
               width: 250,
+              borderColor: isLoading ? Colors.white : Colors.black,
+              textColor: isLoading ? Colors.black : Colors.white,
             ),
             TextButton(
             onPressed: () {

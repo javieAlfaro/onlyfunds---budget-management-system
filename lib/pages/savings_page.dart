@@ -120,19 +120,37 @@ class _SavingsPageState extends State<SavingsPage> {
                   stream: SavingsService().currentTargetSavings(),
                   builder: (context, snapshotTarget) {
                     double target = snapshotTarget.data ?? 1; // avoid division by zero
+                    double progress = (saved / target).clamp(0.0, 1.0);
+                    double percentage = progress * 100;
 
-                    return LinearProgressIndicator(
-                      value: (saved / target).clamp(0.0, 1.0),
-                      backgroundColor: Colors.grey[300],
-                      color: Colors.lightGreen,
-                      minHeight: 16,
-                      borderRadius: BorderRadius.circular(8),
+                    return Stack(
+                      alignment: Alignment.centerLeft, // centers the text inside the bar
+                      children: [
+                        // 🟩 Background progress bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.grey[300],
+                            color: Colors.lightGreen,
+                            minHeight: 20,
+                          ),
+                        ),
+
+                        // 💬 Text on top of the progress bar
+                        Text(
+                          "  ${percentage.toStringAsFixed(1)}%",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12 // good contrast inside green bar
+                          ),
+                        ),
+                      ],
                     );
                   },
                 );
               },
-            )
-
+            ),
           ],
         ),
       ),
@@ -237,7 +255,7 @@ Widget _displayFundBox() {
                     DropdownMenuItem(
                         value: "School Fund", child: Text("School Fund")),
                     DropdownMenuItem(
-                        value: "Miscellaneous", child: Text("Miscellaneous")),
+                        value: "Miscellaneous Fund", child: Text("Miscellaneous Fund")),
                   ],
                   onChanged: (value) {
                     setState(() {
