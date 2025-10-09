@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:onlyfunds_v1/auth_service.dart';
+import 'package:onlyfunds_v1/pages/account_page.dart';
+import 'package:onlyfunds_v1/pages/notifications_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -89,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _settingsItem(IconData icon, String title) {
+  Widget _settingsItem(IconData icon, String title, {VoidCallback? onTap}) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -108,7 +110,8 @@ class _SettingsPageState extends State<SettingsPage> {
           title,
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        onTap: () {},
+        trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+        onTap: onTap,
       ),
     );
   }
@@ -121,9 +124,26 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _settingsItem(Icons.account_circle_rounded, "Account Information"),
+            _settingsItem(Icons.account_circle_rounded, 
+            "Account Information",
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(
+                  builder: (context) => AccountPage()),
+              );
+            }
+            ),
             const SizedBox(height: 12),
-            _settingsItem(Icons.notifications_rounded, "Notifications"),
+            _settingsItem(Icons.notifications_rounded, 
+            "Notifications",
+            onTap: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );  
+            },
+            ),
             const SizedBox(height: 12),
             _settingsItem(Icons.access_time_filled_rounded, "Budget Period"),
             const Spacer(),
