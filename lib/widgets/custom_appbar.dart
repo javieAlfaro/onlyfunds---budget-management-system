@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:onlyfunds_v1/pages/notifications_page.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBack;
+  final bool? showNotificationsIcon; 
   final VoidCallback? onBack;
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.showBack = false,
+    this.showNotificationsIcon, // Remove default value
     this.onBack,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool showIcon = showNotificationsIcon ?? true; // Provide default here
+    
     return AppBar(
       backgroundColor: Colors.grey[100],
       scrolledUnderElevation: 0,
@@ -30,18 +35,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
               onPressed: onBack ?? () {
-                // instead of popping, go back to previous tab if using bottom nav
                 Navigator.of(context).maybePop();
               },
             )
           : null,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.search_rounded, color: Colors.black),
-          onPressed: () {
-            // TODO: Add search logic
-          },
-        ),
+        if (showIcon) // Use the local variable with default
+          IconButton(
+            icon: CircleAvatar(
+              backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+              child: Icon(Icons.notifications, color: const Color.fromARGB(255, 255, 255, 255)),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
+          ),
       ],
     );
   }
