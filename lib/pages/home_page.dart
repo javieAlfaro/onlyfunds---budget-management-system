@@ -32,6 +32,7 @@ class _HomePageState extends State<HomePage> {
         appBar: CustomAppBar(
           title: "Savings",
           showBack: true,
+          showNotificationsIcon: true,
           onBack: () => setState(() => _selectedIndex = 2),
         ),
         body: const SavingsPage(),
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> {
         appBar: CustomAppBar(
           title: "Reports",
           showBack: true,
+          showNotificationsIcon: true,
           onBack: () => setState(() => _selectedIndex = 2),
         ),
         body: const ReportsPage(),
@@ -55,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         appBar: CustomAppBar(
           title: "Transaction History",
           showBack: true,
+          showNotificationsIcon: true,
           onBack: () => setState(() => _selectedIndex = 2),
         ),
         body: const HistoryPage(),
@@ -65,6 +68,7 @@ class _HomePageState extends State<HomePage> {
         appBar: CustomAppBar(
           title: "Settings",
           showBack: true,
+          showNotificationsIcon: true,
           onBack: () => setState(() => _selectedIndex = 2),
         ),
         body: const SettingsPage(),
