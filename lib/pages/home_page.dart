@@ -338,8 +338,12 @@ class _HomePageContentState extends State<HomePageContent> {
                         if (value == null || value.trim().isEmpty) {
                           return "Amount is required";
                         }
-                        if (double.tryParse(value) == null) {
+                        final parsedValue = double.tryParse(value);
+                        if (parsedValue == null) {
                           return "Enter a valid number";
+                        }
+                        if (parsedValue <= 0) {
+                          return "Amount must be greater than 0";
                         }
                         return null;
                       },

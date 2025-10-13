@@ -119,12 +119,18 @@ class _SavingsPageState extends State<SavingsPage> {
                 return StreamBuilder<double>(
                   stream: SavingsService().currentTargetSavings(),
                   builder: (context, snapshotTarget) {
-                    double target = snapshotTarget.data ?? 1; // avoid division by zero
-                    double progress = (saved / target).clamp(0.0, 1.0);
+                    double target = snapshotTarget.data ?? 0; 
+                    double progress = 0.0;
+
+                    // Only calculate progress if target > 0
+                    if (target > 0) {
+                      progress = (saved / target).clamp(0.0, 1.0);
+                    }
+
                     double percentage = progress * 100;
 
                     return Stack(
-                      alignment: Alignment.centerLeft, // centers the text inside the bar
+                      alignment: Alignment.centerLeft, 
                       children: [
                         
                         ClipRRect(
@@ -282,11 +288,15 @@ Widget _displayFundBox() {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-                    if (double.tryParse(value) == null) {
-                      return "Enter a valid number";
-                    }
+                          return "Amount is required";
+                        }
+                    final parsedValue = double.tryParse(value);
+                    if (parsedValue == null) {
+                          return "Enter a valid number";
+                        }
+                    if (parsedValue <= 0) {
+                          return "Amount must be greater than 0";
+                        }
                     return null;
                   },
                 ),
@@ -378,7 +388,7 @@ Widget _displayFundBox() {
                     return Text(
                       "( ${NumberFormat.currency(locale: 'en_PH', symbol: "₱").format(remaining)} left to reach target )",
                       style: TextStyle(
-                        fontSize: 14, // smaller
+                        fontSize: 12, // smaller
                         color: Colors.grey[600], // grey
                         fontWeight: FontWeight.normal, // not bold
                       ),
@@ -398,11 +408,15 @@ Widget _displayFundBox() {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
-                    }
-                    if (double.tryParse(value) == null) {
-                      return "Enter a valid number";
-                    }
+                          return "Amount is required";
+                        }
+                    final parsedValue = double.tryParse(value);
+                    if (parsedValue == null) {
+                          return "Enter a valid number";
+                        }
+                    if (parsedValue <= 0) {
+                          return "Amount must be greater than 0";
+                        }
                     return null;
                   },
                 ),
