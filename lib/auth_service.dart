@@ -41,6 +41,13 @@ class AuthService {
     await currentUser!.updateDisplayName(username);
   }
 
+  Future<void> verifyBeforeUpdateEmail({
+    required String newEmail,
+  }) async {
+    await currentUser!.verifyBeforeUpdateEmail(newEmail);
+  }
+
+
   Future<void> deleteAccount ({
     required String email,
     required String password,
