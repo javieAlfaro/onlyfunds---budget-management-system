@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:onlyfunds_v1/pages/account_page.dart';
 import 'firebase_options.dart';
 import 'pages/signin_page.dart';
 import 'pages/home_page.dart'; // 👈 your bottom nav container
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/signin': (context) => const SignInPage(),
         '/home': (context) => const HomePage(),
+        '/account': (context) => const AccountPage(),
         // add others here...
       },
       theme: ThemeData(

@@ -145,7 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
             },
             ),
             const SizedBox(height: 12),
-            _settingsItem(Icons.access_time_filled_rounded, "Budget Period"),
+
             const Spacer(),
 
             // Delete Account button
