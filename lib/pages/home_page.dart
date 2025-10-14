@@ -97,8 +97,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.account_balance_wallet_rounded), label: "Savings"),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_rounded), label: "Savings"),
           BottomNavigationBarItem(icon: Icon(Icons.show_chart_rounded), label: "Reports"),
           BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: "History"),
@@ -149,16 +148,20 @@ class _HomePageContentState extends State<HomePageContent> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: const Text(
-          "Budget Tracker",
-          style: TextStyle(color: Colors.white),
+          "Dashboard",
+          style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.black),
+            padding: const EdgeInsets.only(right: 2),
+            child: IconButton(
+            icon: CircleAvatar(
+              child: Icon(Icons.person),
             ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/account');
+            },
+          ),
           ),
         ],
       ),
