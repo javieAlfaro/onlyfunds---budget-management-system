@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
       Scaffold(
         backgroundColor: Colors.grey[100],
         appBar: CustomAppBar(
-          title: "Savings",
+          title: "Savings Goals",
           showBack: true,
           showNotificationsIcon: true,
           onBack: () => setState(() => _selectedIndex = 2),
