@@ -28,28 +28,51 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _loadUserData() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      try {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
-        if (doc.exists) {
-          final data = doc.data()!;
-          setState(() {
-            _usernameController.text = data['user_name'] ?? '';
-            _emailController.text = data['email'] ?? user.email ?? '';
-            _phoneController.text = data['phone'] ?? '';
-            final createdAt = data['date_created'];
-            dateCreated = createdAt != null
-                ? (createdAt as Timestamp).toDate().toString().substring(0, 10)
-                : 'N/A';
-            isLoading = false;
-          });
-        }
-      } catch (e) {
-        debugPrint('Error loading user data: $e');
+  final user = _auth.currentUser;
+
+  if (user != null) {
+    try {
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+        setState(() {
+          _usernameController.text = data['user_name'] ?? '';
+          _emailController.text = data['email'] ?? user.email ?? '';
+          _phoneController.text = data['phone'] ?? '';
+          final createdAt = data['date_created'];
+          dateCreated = createdAt != null
+              ? (createdAt as Timestamp).toDate().toString().substring(0, 10)
+              : 'N/A';
+          isLoading = false;
+        });
+      } else {
+        // Document missing — still show user info from Firebase Auth
+        setState(() {
+          _usernameController.text = user.displayName ?? '';
+          _emailController.text = user.email ?? '';
+          _phoneController.text = '';
+          dateCreated = 'N/A';
+          isLoading = false;
+        });
+        debugPrint('No Firestore document found for this user.');
       }
+    } catch (e) {
+      // Handle permission or network errors gracefully
+      debugPrint('Error loading user data: $e');
+      setState(() {
+        _emailController.text = user.email ?? '';
+        _usernameController.text = user.displayName ?? '';
+        dateCreated = 'N/A';
+        isLoading = false;
+      });
     }
+  } else {
+    // No authenticated user — stop loading
+    setState(() => isLoading = false);
+    debugPrint('No authenticated user found.');
   }
+}
 
   Future<void> _saveChanges() async {
     final user = _auth.currentUser;
