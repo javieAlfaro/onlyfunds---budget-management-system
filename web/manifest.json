@@ -1,11 +1,11 @@
 {
-    "name": "onlyfunds_v1",
-    "short_name": "onlyfunds_v1",
+    "name": "OnlyFunds — Budget Management System",
+    "short_name": "OnlyFunds",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A Flutter budget tracker for income, expenses, savings goals, and spending insights.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
